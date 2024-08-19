@@ -1,5 +1,5 @@
-ARG go="golang:1.23.0-alpine"
-ARG base="alpine:3.21"
+ARG go="golang:1.23.0-alpine3.20"
+ARG base="alpine:3.20"
 
 # third stage for building the backend
 FROM --platform=$BUILDPLATFORM ${go} AS builder
