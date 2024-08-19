@@ -122,6 +122,25 @@ func (di *DeploymentIntegration) CreateDeployment(name, image string, command, a
 							Command: command,
 							Args:    args,
 							Env:     e,
+							EnvFrom: []corev1.EnvFromSource{
+								{
+									SecretRef: &corev1.SecretEnvSource{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "default-env",
+										},
+									},
+								},
+							},
+						},
+					},
+					Volumes: []corev1.Volume{
+						{
+							Name: "default-env",
+							VolumeSource: corev1.VolumeSource{
+								Secret: &corev1.SecretVolumeSource{
+									SecretName: "default-env",
+								},
+							},
 						},
 					},
 				},

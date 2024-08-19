@@ -157,5 +157,51 @@ func (ds *DeploymentService) start() error {
 		helpers.HandleMQOK(m)
 	})
 
+	nc.Subscribe("knoperator.jobs.get", func(m *nats.Msg) {
+		pods, err := ds.deploymentIntegration.GetJobs()
+		if err != nil {
+			helpers.HandleMQError(m, err)
+			return
+		}
+		responseJSON, _ := json.Marshal(pods)
+		msg := &nats.Msg{
+			Data: responseJSON,
+		}
+		m.RespondMsg(msg)
+	})
+
+	nc.Subscribe("knoperator.jobs.delete", func(m *nats.Msg) {
+		name := string(m.Data)
+		err := ds.deploymentIntegration.DeleteJob(name)
+		if err != nil {
+			helpers.HandleMQError(m, err)
+			return
+		}
+		helpers.HandleMQOK(m)
+	})
+
+	nc.Subscribe("knoperator.jobs.create", func(m *nats.Msg) {
+		type JobCreateRequest struct {
+			Name    string
+			Image   string
+			Command []string
+			Args    []string
+			Env     map[string]string
+		}
+		var request JobCreateRequest
+		err := json.Unmarshal(m.Data, &request)
+		if err != nil {
+			helpers.HandleMQError(m, err)
+			return
+		}
+
+		err = ds.deploymentIntegration.CreateJob(request.Name, request.Image, request.Command, request.Args, request.Env)
+		if err != nil {
+			helpers.HandleMQError(m, err)
+			return
+		}
+		helpers.HandleMQOK(m)
+	})
+
 	return nil
 }
