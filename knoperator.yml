@@ -1,0 +1,15 @@
+# prettier-ignore
+version: '3.6'
+services:
+  knoperator:
+    image: knoperator:latest
+    build: .
+    command: ["start", "-l", "trace"] # use this command to run in trace mode
+    environment:
+      - "knoperator_DATA_DIR=/data/database"
+
+      - "knoperator_MQ_URI=${knoperator_MQ_URI}"
+      - "knoperator_MQ_JWT=${knoperator_MQ_JWT}"
+      - "knoperator_MQ_USEED=${knoperator_MQ_USEED}"
+    volumes:
+      - "./data/database:/data/database"

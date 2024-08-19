@@ -1,0 +1,16 @@
+# prettier-ignore
+version: '3.6'
+services:
+  knoperator:
+    extends:
+      file: knoperator.yml
+      service: knoperator
+
+  nats:
+    image: mheers/nats-auto-server:2.3.2-alpine3.14
+    environment:
+      - OPERATOR_SEED=SOAA7B6L7CCSKP7XFDD6MXH65SRZIHBL2HXZFHWOLSVTN3UQ4EBMHKAJ2A
+      - ACCOUNT_SEED=SAAGQMOVIAG5TTHENP3JMN3HOA4YY3LXJSU6SAWUDTPSIECKKSC54QYOJQ
+    ports:
+      - "4222:4222"
+      - "9222:9222"

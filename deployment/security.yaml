@@ -1,0 +1,92 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: knoperator
+  # Change to the name of the namespace where to install knoperator.
+  namespace: default
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: knoperator-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: knoperator
+subjects:
+  - kind: ServiceAccount
+    name: knoperator
+    # Change to the name of the namespace where to install knoperator.
+    namespace: default
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: knoperator
+rules:
+  # Allowed actions on Pods
+  - apiGroups: [""]
+    resources:
+      - pods
+    verbs: ["create", "watch", "get", "patch", "update", "delete", "list"]
+
+  # Allowed actions on Deployments
+  - apiGroups: ["apps"]
+    resources:
+      - deployments
+    verbs: ["create", "watch", "get", "patch", "update", "delete", "list"]
+
+  # Allowed actions on Services
+  - apiGroups: [""]
+    resources:
+      - services
+    verbs: ["create", "watch", "get", "patch", "update", "delete", "list"]
+
+  # Allowed actions on Secrets
+  - apiGroups: [""]
+    resources:
+      - secrets
+    verbs: ["create", "watch", "get", "update", "delete", "list"]
+
+  # Allow all actions on some special subresources
+  - apiGroups: [""]
+    resources:
+      - pods/exec
+      - pods/log
+      - serviceaccounts/token
+      - events
+    verbs: ["*"]
+
+  # Allow listing Namespaces and ServiceAccounts
+  - apiGroups: [""]
+    resources:
+      - namespaces
+      - serviceaccounts
+    verbs: ["list", "get", "watch"]
+
+  # Allow actions on Endpoints
+  - apiGroups: [""]
+    resources:
+      - endpoints
+    verbs: ["create", "watch", "get", "update", "delete", "list"]
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: knoperator-mq-jwt
+type: Opaque
+data:
+  jwt: ZXlKMGVYQWlPaUpLVjFRaUxDSmhiR2NpT2lKbFpESTFOVEU1TFc1clpYa2lmUS5leUpxZEdraU9pSlRXazFOVmxaQ1IwNVFRVmxVU1VvMlZsWkVTa1JIVVZsUFFWWkNTbGd6VERWSFVEWTNORXRRTlRaQ05sVk5Vek5HVFU5Uklpd2lhV0YwSWpveE5qVTBNVFl3TVRNM0xDSnBjM01pT2lKQlFqVlZWVTFYUlRkTVFrVlFWak5TU2pWVVFWUklUMVkxUmpKWFQweFJSRXRaUTBWVFZGQk5RMVZJU1ZBeU0wVlFRVnBOTWxCRFJTSXNJbTVoYldVaU9pSjBaWE4wSWl3aWMzVmlJam9pVlVGTlNVdFROVlZWVjFCR04wTktVa3hUVkZkTlEwZzJUekpHV0ZwRVNGUkVTRGRJU0VFMFZqTTBWRkZRVDBaRlRrWklNbFJLVjBjaUxDSnVZWFJ6SWpwN0luQjFZaUk2ZXlKaGJHeHZkeUk2V3lKcmIzQmxjbUYwYjNJdWNHOWtjeTVqY21WaGRHVWlMQ0pyYjNCbGNtRjBiM0l1Y0c5a2N5NW5aWFFpTENKcmIzQmxjbUYwYjNJdWNHOWtjeTUxY0dSaGRHVWlMQ0pyYjNCbGNtRjBiM0l1Y0c5a2N5NWtaV3hsZEdVaUxDSnJiM0JsY21GMGIzSXVjRzlrY3k1M1lYUmphQ0lzSW10dmNHVnlZWFJ2Y2k1a1pYQnNiM2x0Wlc1MGN5NWpjbVZoZEdVaUxDSnJiM0JsY21GMGIzSXVaR1Z3Ykc5NWJXVnVkSE11WjJWMElpd2lhMjl3WlhKaGRHOXlMbVJsY0d4dmVXMWxiblJ6TG5Wd1pHRjBaU0lzSW10dmNHVnlZWFJ2Y2k1a1pYQnNiM2x0Wlc1MGN5NWtaV3hsZEdVaUxDSnJiM0JsY21GMGIzSXVaR1Z3Ykc5NWJXVnVkSE11ZDJGMFkyZ2lMQ0pyYjNCbGNtRjBiM0l1WkdWd2JHOTViV1Z1ZEhNdWMyTmhiR1VpTENKZlNVNUNUMWd1WEhVd01ETmxJbDE5TENKemRXSWlPbnNpWVd4c2IzY2lPbHNpYTI5d1pYSmhkRzl5TGlvdUtpSXNJbXR2Y0dWeVlYUnZjaTRxTGlvdUtpSXNJbDlKVGtKUFdDNWNkVEF3TTJVaVhYMHNJbk4xWW5NaU9pMHhMQ0prWVhSaElqb3RNU3dpY0dGNWJHOWhaQ0k2TFRFc0ltSmxZWEpsY2w5MGIydGxiaUk2ZEhKMVpTd2lkSGx3WlNJNkluVnpaWElpTENKMlpYSnphVzl1SWpveWZYMC40Y1hnZk1XSnJZRnVjanhPOFJlQjMtMENoNjhVZjlEaWZGN0VteFlmcTNReGtXT01aWmhZWm1ZMTlDODE4NjU3QWxPa3EzeHZ6R20yUUIyTjN1VFJDQQ==
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: knoperator-mq-useed
+type: Opaque
+data:
+  useed: U1VBRkNaRENRMk5HSTRKSlNFWVpRRlRMVkdCVTdXQkNYWERZSUMyQU1JUk9WQVdOUUNaREdQQldZWQ==
