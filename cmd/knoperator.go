@@ -8,7 +8,7 @@ import (
 	"github.com/mheers/knoperator/helpers"
 	deploymentIntegration "github.com/mheers/knoperator/integrations/deployment"
 	"github.com/mheers/knoperator/k8sclient"
-	"github.com/mheers/knoperator/mqclient"
+	mqmodels "github.com/mheers/knoperator/mqclient/models"
 	"github.com/mheers/knoperator/services"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -88,11 +88,12 @@ func initMQ(config *config.Config) error {
 	if config.MQUSeed == "" {
 		return errors.New("no MQUSeed found")
 	}
-	mqClient, err := mqclient.Init(config)
+
+	mqClient, err := mqmodels.NewMQClient(config)
 	if err != nil {
 		return err
 	}
-	services.MQClient = mqClient
+	services.SetMQClient(mqClient)
 
 	return nil
 }

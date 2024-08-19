@@ -43,7 +43,9 @@ func (ds *DeploymentService) Start() error {
 func (ds *DeploymentService) start() error {
 	logrus.Info("knoperator: start: deploymentservice.start()")
 
-	services.MQClient.Connection.Subscribe("knoperator.pods.get", func(m *nats.Msg) {
+	nc := services.MQClient().Connection
+
+	nc.Subscribe("knoperator.pods.get", func(m *nats.Msg) {
 		pods, err := ds.deploymentIntegration.GetPods()
 		if err != nil {
 			helpers.HandleMQError(m, err)
@@ -56,7 +58,7 @@ func (ds *DeploymentService) start() error {
 		m.RespondMsg(msg)
 	})
 
-	services.MQClient.Connection.Subscribe("knoperator.pods.delete", func(m *nats.Msg) {
+	nc.Subscribe("knoperator.pods.delete", func(m *nats.Msg) {
 		name := string(m.Data)
 		err := ds.deploymentIntegration.DeletePod(name)
 		if err != nil {
@@ -66,7 +68,7 @@ func (ds *DeploymentService) start() error {
 		helpers.HandleMQOK(m)
 	})
 
-	services.MQClient.Connection.Subscribe("knoperator.deployments.get", func(m *nats.Msg) {
+	nc.Subscribe("knoperator.deployments.get", func(m *nats.Msg) {
 		pods, err := ds.deploymentIntegration.GetDeployments()
 		if err != nil {
 			helpers.HandleMQError(m, err)
@@ -79,7 +81,7 @@ func (ds *DeploymentService) start() error {
 		m.RespondMsg(msg)
 	})
 
-	services.MQClient.Connection.Subscribe("knoperator.deployments.delete", func(m *nats.Msg) {
+	nc.Subscribe("knoperator.deployments.delete", func(m *nats.Msg) {
 		name := string(m.Data)
 		err := ds.deploymentIntegration.DeleteDeployment(name)
 		if err != nil {
@@ -89,7 +91,7 @@ func (ds *DeploymentService) start() error {
 		helpers.HandleMQOK(m)
 	})
 
-	services.MQClient.Connection.Subscribe("knoperator.deployments.create", func(m *nats.Msg) {
+	nc.Subscribe("knoperator.deployments.create", func(m *nats.Msg) {
 		type DeploymentCreateRequest struct {
 			Name    string
 			Image   string
@@ -112,7 +114,7 @@ func (ds *DeploymentService) start() error {
 		helpers.HandleMQOK(m)
 	})
 
-	services.MQClient.Connection.Subscribe("knoperator.deployments.update", func(m *nats.Msg) {
+	nc.Subscribe("knoperator.deployments.update", func(m *nats.Msg) {
 		type DeploymentUpdateRequest struct {
 			Name    string
 			Image   string
@@ -135,7 +137,7 @@ func (ds *DeploymentService) start() error {
 		helpers.HandleMQOK(m)
 	})
 
-	services.MQClient.Connection.Subscribe("knoperator.deployments.scale", func(m *nats.Msg) {
+	nc.Subscribe("knoperator.deployments.scale", func(m *nats.Msg) {
 		type DeploymentScaleRequest struct {
 			Name      string
 			NReplicas int

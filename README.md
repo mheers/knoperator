@@ -7,7 +7,7 @@
 ### Create credentials for MQ
 
 ```bash
-nats-seeder --operator-seed SOAA7B6L7CCSKP7XFDD6MXH65SRZIHBL2HXZFHWOLSVTN3UQ4EBMHKAJ2A --account-seed SAAGQMOVIAG5TTHENP3JMN3HOA4YY3LXJSU6SAWUDTPSIECKKSC54QYOJQ user-nkey -u test \
+nats-seeder --operator-seed SOAEUVFW77MXWK4IVK7RXXBMTWSVTFZFXKRJD5E26W622RUCO4CM7GZRHI --account-seed SAAPN4CYDRBUCWQ25HQLLWRO3ZS2HNCYWBZ7A2IF5AVGSTLZJJVP2EFMAU user-nkey -u test \
 -p "knoperator.pods.create" \
 -p "knoperator.pods.get" \
 -p "knoperator.pods.update" \

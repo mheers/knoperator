@@ -7,8 +7,8 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/brianvoe/gofakeit/v5"
 	"dario.cat/mergo"
+	"github.com/brianvoe/gofakeit/v5"
 	"github.com/mheers/knoperator/helpers"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
@@ -16,15 +16,15 @@ import (
 
 // Config describes the config
 type Config struct {
-	MQJWT   string `env:"knoperator_MQ_JWT"`
-	MQURI   string `env:"knoperator_MQ_URI"`
-	MQUSeed string `env:"knoperator_MQ_USEED"`
+	MQJWT   string `env:"KNOPERATOR_MQ_JWT"`
+	MQURI   string `env:"KNOPERATOR_MQ_URI"`
+	MQUSeed string `env:"KNOPERATOR_MQ_USEED"`
 
-	K8sInCluster bool   `env:"knoperator_K8S_INCLUSTER"`
-	K8sNamespace string `env:"knoperator_K8S_NAMESPACE"`
-	K8sPodName   string `env:"knoperator_K8S_POD_NAME"`
+	K8sInCluster bool   `env:"KNOPERATOR_K8S_INCLUSTER"`
+	K8sNamespace string `env:"KNOPERATOR_K8S_NAMESPACE"`
+	K8sPodName   string `env:"KNOPERATOR_K8S_POD_NAME"`
 
-	DataDir string `env:"knoperator_DATA_DIR"`
+	DataDir string `env:"KNOPERATOR_DATA_DIR"`
 }
 
 // OverlayConfigWithEnv overlays the config with values from the env

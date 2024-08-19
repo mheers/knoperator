@@ -76,5 +76,9 @@ func getConnection(config *config.Config) (*nats.Conn, error) {
 
 	// Connect to NATS
 	nc, err := nats.Connect(url, opts...)
+	if err != nil {
+		return nil, err
+	}
+
 	return nc, err
 }
