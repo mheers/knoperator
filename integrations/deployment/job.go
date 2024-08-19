@@ -2,6 +2,9 @@ package deployment
 
 import (
 	"context"
+	"crypto/md5"
+	"fmt"
+	"path"
 
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -23,7 +26,52 @@ func (di *DeploymentIntegration) DeleteJob(name string) error {
 	return err
 }
 
-func (di *DeploymentIntegration) CreateJob(name, image string, command, args []string, env map[string]string) error {
+func (di *DeploymentIntegration) CreateJob(name, image string, command, args []string, env map[string]string, mountpoints map[string]string) error {
+	volumes := []corev1.Volume{
+		{
+			Name: "default-env",
+			VolumeSource: corev1.VolumeSource{
+				Secret: &corev1.SecretVolumeSource{
+					SecretName: "default-env",
+				},
+			},
+		},
+	}
+	volumeMounts := []corev1.VolumeMount{}
+	for k, v := range mountpoints {
+		kmd5 := fmt.Sprintf("%x", md5.Sum([]byte(k)))
+
+		path := path.Join(di.config.BaseHostPath, k)
+
+		// // create the host path if it does not exist
+		// if err := os.MkdirAll(path, 0777); err != nil {
+		// 	if !os.IsExist(err) {
+		// 		return err
+		// 	}
+		// }
+
+		hostPathType := corev1.HostPathDirectoryOrCreate
+		// recursiveReadOnly := corev1.RecursiveReadOnlyDisabled // only for newer k8s versions
+		mountPropagation := corev1.MountPropagationHostToContainer
+
+		volumes = append(volumes, corev1.Volume{
+			Name: kmd5,
+			VolumeSource: corev1.VolumeSource{
+				HostPath: &corev1.HostPathVolumeSource{
+					Path: path,
+					Type: &hostPathType,
+				},
+			},
+		})
+		volumeMounts = append(volumeMounts, corev1.VolumeMount{
+			Name:      kmd5,
+			MountPath: v,
+			ReadOnly:  false,
+			// RecursiveReadOnly: &recursiveReadOnly, // only for newer k8s versions
+			MountPropagation: &mountPropagation,
+		})
+	}
+
 	e := []corev1.EnvVar{}
 	for k, v := range env {
 		e = append(e, corev1.EnvVar{
@@ -61,18 +109,10 @@ func (di *DeploymentIntegration) CreateJob(name, image string, command, args []s
 									},
 								},
 							},
+							VolumeMounts: volumeMounts,
 						},
 					},
-					Volumes: []corev1.Volume{
-						{
-							Name: "default-env",
-							VolumeSource: corev1.VolumeSource{
-								Secret: &corev1.SecretVolumeSource{
-									SecretName: "default-env",
-								},
-							},
-						},
-					},
+					Volumes: volumes,
 				},
 			},
 		},

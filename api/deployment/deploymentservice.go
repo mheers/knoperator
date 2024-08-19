@@ -182,11 +182,12 @@ func (ds *DeploymentService) start() error {
 
 	nc.Subscribe("knoperator.jobs.create", func(m *nats.Msg) {
 		type JobCreateRequest struct {
-			Name    string
-			Image   string
-			Command []string
-			Args    []string
-			Env     map[string]string
+			Name        string
+			Image       string
+			Command     []string
+			Args        []string
+			Env         map[string]string
+			MountPoints map[string]string
 		}
 		var request JobCreateRequest
 		err := json.Unmarshal(m.Data, &request)
@@ -195,7 +196,7 @@ func (ds *DeploymentService) start() error {
 			return
 		}
 
-		err = ds.deploymentIntegration.CreateJob(request.Name, request.Image, request.Command, request.Args, request.Env)
+		err = ds.deploymentIntegration.CreateJob(request.Name, request.Image, request.Command, request.Args, request.Env, request.MountPoints)
 		if err != nil {
 			helpers.HandleMQError(m, err)
 			return

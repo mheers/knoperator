@@ -24,6 +24,8 @@ type Config struct {
 	K8sNamespace string `env:"KNOPERATOR_K8S_NAMESPACE"`
 	K8sPodName   string `env:"KNOPERATOR_K8S_POD_NAME"`
 
+	BaseHostPath string `env:"KNOPERATOR_BASE_HOSTPATH"`
+
 	DataDir string `env:"KNOPERATOR_DATA_DIR"`
 }
 

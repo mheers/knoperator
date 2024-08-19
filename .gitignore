@@ -6,3 +6,4 @@ data/
 test.creds
 knoperator
 .env
+deployment/secret-env.yaml
