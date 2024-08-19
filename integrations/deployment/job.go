@@ -36,8 +36,25 @@ func (di *DeploymentIntegration) CreateJob(name, image string, command, args []s
 				},
 			},
 		},
+		{
+			Name: "ssh",
+			VolumeSource: corev1.VolumeSource{
+				Secret: &corev1.SecretVolumeSource{
+					SecretName: "ssh",
+				},
+			},
+		},
 	}
-	volumeMounts := []corev1.VolumeMount{}
+
+	volumeMounts := []corev1.VolumeMount{
+		{
+			Name:      "ssh",
+			MountPath: "/root/.ssh",
+			ReadOnly:  true,
+			SubPath:   "id_rsa",
+		},
+	}
+
 	for k, v := range mountpoints {
 		kmd5 := fmt.Sprintf("%x", md5.Sum([]byte(k)))
 

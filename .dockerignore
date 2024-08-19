@@ -1,1 +1,9 @@
+*.state*
+__*
+cover.out
+.VERSION
 data/
+test.creds
+knoperator
+.env
+deployment/secret-env.yaml
