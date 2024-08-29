@@ -6,5 +6,5 @@ data/
 test.creds
 knoperator
 .env
-deployment/secret-env.yaml
+deployment/secret-env-local.yaml
 deployment/secret-ssh.yaml

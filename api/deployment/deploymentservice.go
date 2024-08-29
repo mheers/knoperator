@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"sync"
 
+	"github.com/mheers/knoperator/api/deployment/models"
 	"github.com/mheers/knoperator/config"
 	"github.com/mheers/knoperator/helpers"
 	"github.com/mheers/knoperator/integrations/deployment"
@@ -92,14 +93,7 @@ func (ds *DeploymentService) start() error {
 	})
 
 	nc.Subscribe("knoperator.deployments.create", func(m *nats.Msg) {
-		type DeploymentCreateRequest struct {
-			Name    string
-			Image   string
-			Command []string
-			Args    []string
-			Env     map[string]string
-		}
-		var request DeploymentCreateRequest
+		var request models.DeploymentCreateRequest
 		err := json.Unmarshal(m.Data, &request)
 		if err != nil {
 			helpers.HandleMQError(m, err)
@@ -181,15 +175,7 @@ func (ds *DeploymentService) start() error {
 	})
 
 	nc.Subscribe("knoperator.jobs.create", func(m *nats.Msg) {
-		type JobCreateRequest struct {
-			Name        string
-			Image       string
-			Command     []string
-			Args        []string
-			Env         map[string]string
-			MountPoints map[string]string
-		}
-		var request JobCreateRequest
+		var request models.JobCreateRequest
 		err := json.Unmarshal(m.Data, &request)
 		if err != nil {
 			helpers.HandleMQError(m, err)
