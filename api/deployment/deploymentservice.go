@@ -46,6 +46,13 @@ func (ds *DeploymentService) start() error {
 
 	nc := services.MQClient().Connection
 
+	go func() {
+		err := ds.deploymentIntegration.WatchJobs(nc)
+		if err != nil {
+			logrus.Errorf("knoperator: start: deploymentservice.start: WatchJobs: %s", err.Error())
+		}
+	}()
+
 	nc.Subscribe("knoperator.pods.get", func(m *nats.Msg) {
 		pods, err := ds.deploymentIntegration.GetPods()
 		if err != nil {

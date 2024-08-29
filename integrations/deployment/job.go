@@ -3,12 +3,18 @@ package deployment
 import (
 	"context"
 	"crypto/md5"
+	"encoding/json"
 	"fmt"
 	"path"
 
+	"github.com/nats-io/nats.go"
+	"github.com/sirupsen/logrus"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/watch"
+	"k8s.io/client-go/tools/cache"
+	toolsWatch "k8s.io/client-go/tools/watch"
 )
 
 func (di *DeploymentIntegration) GetJobs() ([]batchv1.Job, error) {
@@ -24,6 +30,71 @@ func (di *DeploymentIntegration) GetJobs() ([]batchv1.Job, error) {
 func (di *DeploymentIntegration) DeleteJob(name string) error {
 	err := di.k8s.BatchV1().Jobs(di.config.K8sNamespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
 	return err
+}
+
+func (di *DeploymentIntegration) WatchJobs(nc *nats.Conn) error {
+	watchFunc := func(options metav1.ListOptions) (watch.Interface, error) {
+		return di.k8s.BatchV1().Jobs(di.config.K8sNamespace).Watch(context.Background(), metav1.ListOptions{})
+	}
+
+	watcher, err := toolsWatch.NewRetryWatcher("1", &cache.ListWatch{WatchFunc: watchFunc})
+	if err != nil {
+		return err
+	}
+
+	for event := range watcher.ResultChan() {
+		item := event.Object.(*batchv1.Job)
+
+		switch event.Type {
+		case watch.Modified:
+			logrus.Infof("job modified: %s", item.GetName())
+			nc.Publish("knoperator.jobs.modified", []byte(item.GetName()))
+
+			// only if not deleted
+			if item.Status.Active == 0 && item.Status.Succeeded == 0 && item.Status.Failed == 0 {
+				nc.Publish("knoperator.jobs.completed", []byte(item.GetName()))
+			}
+
+			// checks if job is failed
+			if item.Status.Failed == 1 {
+				nc.Publish("knoperator.jobs.failed", []byte(item.GetName()))
+			}
+
+		case watch.Bookmark:
+			logrus.Infof("job bookmark: %s", item.GetName())
+			nc.Publish("knoperator.jobs.bookmark", []byte(item.GetName()))
+		case watch.Error:
+			logrus.Infof("job error: %s", item.GetName())
+			nc.Publish("knoperator.jobs.error", []byte(item.GetName()))
+		case watch.Deleted:
+			logrus.Infof("job deleted: %s", item.GetName())
+			nc.Publish("knoperator.jobs.deleted", []byte(item.GetName()))
+		case watch.Added:
+			logrus.Infof("job added: %s", item.GetName())
+			nc.Publish("knoperator.jobs.added", []byte(item.GetName()))
+		}
+
+		type WatchMsg struct {
+			JobName string
+			Type    watch.EventType
+		}
+
+		msg := WatchMsg{
+			JobName: item.GetName(),
+			Type:    event.Type,
+		}
+
+		msgJSON, err := json.Marshal(msg)
+		if err != nil {
+			return fmt.Errorf("error marshalling watch message: %s", err)
+		}
+
+		if err := nc.Publish("knoperator.jobs.watch", msgJSON); err != nil {
+			return fmt.Errorf("error publishing watch message: %s", err)
+		}
+	}
+
+	return nil
 }
 
 func (di *DeploymentIntegration) CreateJob(name, image string, command, args []string, env map[string]string, mountpoints map[string]string) error {
