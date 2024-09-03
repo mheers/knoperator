@@ -48,30 +48,47 @@ func (di *DeploymentIntegration) WatchJobs(nc *nats.Conn) error {
 		switch event.Type {
 		case watch.Modified:
 			logrus.Infof("job modified: %s", item.GetName())
-			nc.Publish("knoperator.jobs.modified", []byte(item.GetName()))
+			if err := nc.Publish("knoperator.jobs.modified", []byte(item.GetName())); err != nil {
+				return fmt.Errorf("error publishing modified job: %s", err)
+			}
 
 			// only if not deleted
 			if item.Status.Active == 0 && item.Status.Succeeded == 0 && item.Status.Failed == 0 {
-				nc.Publish("knoperator.jobs.completed", []byte(item.GetName()))
+				if err := nc.Publish("knoperator.jobs.completed", []byte(item.GetName())); err != nil {
+					return fmt.Errorf("error publishing modified job: %s", err)
+				}
+				if err := nc.Publish(fmt.Sprintf("knoperator.jobs.completed.%s", item.GetName()), []byte(item.GetName())); err != nil {
+					return fmt.Errorf("error publishing modified job: %s", err)
+				}
 			}
 
 			// checks if job is failed
 			if item.Status.Failed == 1 {
-				nc.Publish("knoperator.jobs.failed", []byte(item.GetName()))
+				if err := nc.Publish("knoperator.jobs.failed", []byte(item.GetName())); err != nil {
+					return fmt.Errorf("error publishing modified job: %s", err)
+				}
 			}
 
 		case watch.Bookmark:
 			logrus.Infof("job bookmark: %s", item.GetName())
-			nc.Publish("knoperator.jobs.bookmark", []byte(item.GetName()))
+			if err := nc.Publish("knoperator.jobs.bookmark", []byte(item.GetName())); err != nil {
+				return fmt.Errorf("error publishing modified job: %s", err)
+			}
 		case watch.Error:
 			logrus.Infof("job error: %s", item.GetName())
-			nc.Publish("knoperator.jobs.error", []byte(item.GetName()))
+			if err := nc.Publish("knoperator.jobs.error", []byte(item.GetName())); err != nil {
+				return fmt.Errorf("error publishing modified job: %s", err)
+			}
 		case watch.Deleted:
 			logrus.Infof("job deleted: %s", item.GetName())
-			nc.Publish("knoperator.jobs.deleted", []byte(item.GetName()))
+			if err := nc.Publish("knoperator.jobs.deleted", []byte(item.GetName())); err != nil {
+				return fmt.Errorf("error publishing modified job: %s", err)
+			}
 		case watch.Added:
 			logrus.Infof("job added: %s", item.GetName())
-			nc.Publish("knoperator.jobs.added", []byte(item.GetName()))
+			if err := nc.Publish("knoperator.jobs.added", []byte(item.GetName())); err != nil {
+				return fmt.Errorf("error publishing modified job: %s", err)
+			}
 		}
 
 		type WatchMsg struct {
@@ -107,23 +124,23 @@ func (di *DeploymentIntegration) CreateJob(name, image string, command, args []s
 				},
 			},
 		},
-		{
-			Name: "ssh",
-			VolumeSource: corev1.VolumeSource{
-				Secret: &corev1.SecretVolumeSource{
-					SecretName: "ssh",
-				},
-			},
-		},
+		// {
+		// 	Name: "ssh",
+		// 	VolumeSource: corev1.VolumeSource{
+		// 		Secret: &corev1.SecretVolumeSource{
+		// 			SecretName: "ssh",
+		// 		},
+		// 	},
+		// },
 	}
 
 	volumeMounts := []corev1.VolumeMount{
-		{
-			Name:      "ssh",
-			MountPath: "/root/.ssh",
-			ReadOnly:  true,
-			SubPath:   "id_rsa",
-		},
+		// {
+		// 	Name:      "ssh",
+		// 	MountPath: "/root/.ssh",
+		// 	ReadOnly:  true,
+		// 	SubPath:   "id_rsa",
+		// },
 	}
 
 	for k, v := range mountpoints {
@@ -131,7 +148,7 @@ func (di *DeploymentIntegration) CreateJob(name, image string, command, args []s
 
 		path := path.Join(di.config.BaseHostPath, k)
 
-		// // create the host path if it does not exist
+		// // create the host path if it does not exist (would only work when running in a pod)
 		// if err := os.MkdirAll(path, 0777); err != nil {
 		// 	if !os.IsExist(err) {
 		// 		return err
