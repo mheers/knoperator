@@ -28,6 +28,9 @@ docker-arm64: set-version ##  Builds the knoperator application for arm64
 docker-multi: set-version ##  Builds the knoperator application for amd64 and arm64
 	docker buildx build --platform linux/amd64,linux/arm64 -t mheers/knoperator --push .
 
+docker-push: ##  Pushes the knoperator application to docker hub
+	docker push mheers/knoperator
+
 ##@ Starting
 start-knoperator: ##  Starts the application as docker container
 	docker-compose up knoperator
