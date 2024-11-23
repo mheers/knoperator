@@ -38,9 +38,6 @@ func getConnection(config *config.Config) (*nats.Conn, error) {
 	url := config.MQURI // e.g. "nats://localhost:4222"
 	logrus.Debugf("Connecting to nats mq url: %s", url)
 
-	instanceJWT := config.MQJWT
-	uSeed := []byte(config.MQUSeed)
-
 	totalWait := 1 * time.Minute
 	reconnectDelay := time.Second
 
@@ -48,18 +45,24 @@ func getConnection(config *config.Config) (*nats.Conn, error) {
 	opts := []nats.Option{
 		nats.Name("knoperator Server"),
 	}
-	opts = append(opts, nats.Token(instanceJWT))
-	// opts = append(opts, )
 
-	jwtCB := func() (string, error) {
-		return instanceJWT, nil
+	if config.MQCredsPath != "" {
+		opts = append(opts, nats.UserCredentials(config.MQCredsPath))
+	} else {
+		instanceJWT := config.MQJWT
+		uSeed := []byte(config.MQUSeed)
+		opts = append(opts, nats.Token(instanceJWT))
+
+		jwtCB := func() (string, error) {
+			return instanceJWT, nil
+		}
+		sigCB := func(nonce []byte) ([]byte, error) {
+			kp, _ := nkeys.FromSeed(uSeed)
+			sig, _ := kp.Sign(nonce)
+			return sig, nil
+		}
+		opts = append(opts, nats.UserJWT(jwtCB, sigCB))
 	}
-	sigCB := func(nonce []byte) ([]byte, error) {
-		kp, _ := nkeys.FromSeed(uSeed)
-		sig, _ := kp.Sign(nonce)
-		return sig, nil
-	}
-	opts = append(opts, nats.UserJWT(jwtCB, sigCB))
 
 	opts = append(opts, nats.Timeout(reconnectDelay*3))
 	opts = append(opts, nats.ReconnectWait(reconnectDelay))

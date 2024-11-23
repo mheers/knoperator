@@ -3,7 +3,7 @@ __*
 cover.out
 .VERSION
 data/
-test.creds
+*.creds
 knoperator
 .env
 deployment/secret-env-local.yaml

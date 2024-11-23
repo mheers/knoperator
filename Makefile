@@ -20,13 +20,13 @@ set-version: ## Sets the version
 	./ci/set-version.sh
 
 docker: set-version ##  Builds the knoperator application
-	docker buildx build --platform linux/amd64 -t knoperator --output type=docker .
+	docker buildx build --platform linux/amd64 -t mheers/knoperator --output type=docker .
 
 docker-arm64: set-version ##  Builds the knoperator application for arm64
-	docker buildx build --platform linux/arm64 -t knoperator --output type=docker .
+	docker buildx build --platform linux/arm64 -t mheers/knoperator --output type=docker .
 
 docker-multi: set-version ##  Builds the knoperator application for amd64 and arm64
-	docker buildx build --platform linux/amd64,linux/arm64 -t knoperator --push .
+	docker buildx build --platform linux/amd64,linux/arm64 -t mheers/knoperator --push .
 
 ##@ Starting
 start-knoperator: ##  Starts the application as docker container

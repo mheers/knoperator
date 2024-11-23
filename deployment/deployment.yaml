@@ -16,7 +16,7 @@ spec:
       serviceAccountName: knoperator
       containers:
         - name: knoperator
-          image: knoperator
+          image: mheers/knoperator
           imagePullPolicy: IfNotPresent
           args:
             - start

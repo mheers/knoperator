@@ -79,14 +79,12 @@ func initK8s(config *config.Config) error {
 
 func initMQ(config *config.Config) error {
 	logrus.Debug("enabling feature 'Message Queue'")
-	if config.MQJWT == "" {
-		return errors.New("no MQJWT found")
-	}
 	if config.MQURI == "" {
 		return errors.New("no MQURI found")
 	}
-	if config.MQUSeed == "" {
-		return errors.New("no MQUSeed found")
+
+	if config.MQCredsPath == "" && (config.MQUSeed == "" || config.MQJWT == "") {
+		return errors.New("no MQCredsPath or MQUSeed/MQJWT found")
 	}
 
 	mqClient, err := mqmodels.NewMQClient(config)

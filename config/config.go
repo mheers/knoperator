@@ -16,9 +16,10 @@ import (
 
 // Config describes the config
 type Config struct {
-	MQJWT   string `env:"KNOPERATOR_MQ_JWT"`
-	MQURI   string `env:"KNOPERATOR_MQ_URI"`
-	MQUSeed string `env:"KNOPERATOR_MQ_USEED"`
+	MQJWT       string `env:"KNOPERATOR_MQ_JWT"`
+	MQURI       string `env:"KNOPERATOR_MQ_URI"`
+	MQUSeed     string `env:"KNOPERATOR_MQ_USEED"`
+	MQCredsPath string `env:"KNOPERATOR_MQ_CREDS_PATH"`
 
 	K8sInCluster bool   `env:"KNOPERATOR_K8S_INCLUSTER"`
 	K8sNamespace string `env:"KNOPERATOR_K8S_NAMESPACE"`

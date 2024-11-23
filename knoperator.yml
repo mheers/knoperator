@@ -6,10 +6,16 @@ services:
     build: .
     command: ["start", "-l", "trace"] # use this command to run in trace mode
     environment:
-      - "knoperator_DATA_DIR=/data/database"
+      - "KNOPERATOR_DATA_DIR=/data/database"
 
-      - "knoperator_MQ_URI=${knoperator_MQ_URI}"
-      - "knoperator_MQ_JWT=${knoperator_MQ_JWT}"
-      - "knoperator_MQ_USEED=${knoperator_MQ_USEED}"
+      - "KNOPERATOR_MQ_URI=${KNOPERATOR_MQ_URI}"
+
+      # define either:
+      - "KNOPERATOR_MQ_CREDS_PATH=${KNOPERATOR_MQ_CREDS_PATH}"
+
+      # or define these: (read the data from the mq.creds manually)
+      - "KNOPERATOR_MQ_JWT=${KNOPERATOR_MQ_JWT}"
+      - "KNOPERATOR_MQ_USEED=${KNOPERATOR_MQ_USEED}"
     volumes:
       - "./data/database:/data/database"
+      - "./mq.creds:/mq.creds"
