@@ -8,6 +8,7 @@ services:
     environment:
       - "KNOPERATOR_DATA_DIR=/data/database"
 
+      - "KNOPERATOR_K8S_DEFAULT_IMAGE_PULL_POLICY=${KNOPERATOR_K8S_DEFAULT_IMAGE_PULL_POLICY}"
       - "KNOPERATOR_MQ_URI=${KNOPERATOR_MQ_URI}"
 
       # define either:

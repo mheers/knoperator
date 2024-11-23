@@ -184,6 +184,12 @@ func (di *DeploymentIntegration) CreateJob(name, image string, command, args []s
 			Value: v,
 		})
 	}
+
+	imagePullPolicy := corev1.PullIfNotPresent
+	if di.config.K8sDefaultImagePullPolicy != "" {
+		imagePullPolicy = corev1.PullPolicy(di.config.K8sDefaultImagePullPolicy)
+	}
+
 	d := &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
@@ -200,11 +206,12 @@ func (di *DeploymentIntegration) CreateJob(name, image string, command, args []s
 					RestartPolicy: corev1.RestartPolicyNever,
 					Containers: []corev1.Container{
 						{
-							Name:    name,
-							Image:   image,
-							Command: command,
-							Args:    args,
-							Env:     e,
+							Name:            name,
+							Image:           image,
+							ImagePullPolicy: imagePullPolicy,
+							Command:         command,
+							Args:            args,
+							Env:             e,
 							EnvFrom: []corev1.EnvFromSource{
 								{
 									SecretRef: &corev1.SecretEnvSource{

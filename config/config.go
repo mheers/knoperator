@@ -21,9 +21,10 @@ type Config struct {
 	MQUSeed     string `env:"KNOPERATOR_MQ_USEED"`
 	MQCredsPath string `env:"KNOPERATOR_MQ_CREDS_PATH"`
 
-	K8sInCluster bool   `env:"KNOPERATOR_K8S_INCLUSTER"`
-	K8sNamespace string `env:"KNOPERATOR_K8S_NAMESPACE"`
-	K8sPodName   string `env:"KNOPERATOR_K8S_POD_NAME"`
+	K8sInCluster              bool   `env:"KNOPERATOR_K8S_INCLUSTER"`
+	K8sNamespace              string `env:"KNOPERATOR_K8S_NAMESPACE"`
+	K8sPodName                string `env:"KNOPERATOR_K8S_POD_NAME"`
+	K8sDefaultImagePullPolicy string `env:"KNOPERATOR_K8S_DEFAULT_IMAGE_PULL_POLICY"`
 
 	BaseHostPath string `env:"KNOPERATOR_BASE_HOSTPATH"`
 
