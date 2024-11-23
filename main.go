@@ -4,8 +4,6 @@ import (
 	"runtime/debug"
 	"time"
 
-	_ "go.uber.org/automaxprocs"
-
 	"github.com/mheers/knoperator/cmd"
 	"github.com/mheers/knoperator/models"
 	"github.com/sirupsen/logrus"
