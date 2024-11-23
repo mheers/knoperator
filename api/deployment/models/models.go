@@ -7,6 +7,7 @@ type JobCreateRequest struct {
 	Args        []string
 	Env         map[string]string
 	MountPoints map[string]string
+	WorkingDir  string
 }
 
 type DeploymentCreateRequest struct {

@@ -114,7 +114,7 @@ func (di *DeploymentIntegration) WatchJobs(nc *nats.Conn) error {
 	return nil
 }
 
-func (di *DeploymentIntegration) CreateJob(name, image string, command, args []string, env map[string]string, mountpoints map[string]string) error {
+func (di *DeploymentIntegration) CreateJob(name, image string, command, args []string, env map[string]string, mountpoints map[string]string, workingDir string) error {
 	volumes := []corev1.Volume{
 		{
 			Name: "default-env",
@@ -215,6 +215,7 @@ func (di *DeploymentIntegration) CreateJob(name, image string, command, args []s
 								},
 							},
 							VolumeMounts: volumeMounts,
+							WorkingDir:   workingDir,
 						},
 					},
 					Volumes: volumes,

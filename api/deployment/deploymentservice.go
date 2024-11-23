@@ -189,7 +189,7 @@ func (ds *DeploymentService) start() error {
 			return
 		}
 
-		err = ds.deploymentIntegration.CreateJob(request.Name, request.Image, request.Command, request.Args, request.Env, request.MountPoints)
+		err = ds.deploymentIntegration.CreateJob(request.Name, request.Image, request.Command, request.Args, request.Env, request.MountPoints, request.WorkingDir)
 		if err != nil {
 			helpers.HandleMQError(m, err)
 			return
